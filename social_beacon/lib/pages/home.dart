@@ -1,5 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:social_beacon/pages/activity_feed.dart';
+import 'package:social_beacon/pages/timeline.dart';
+import 'package:social_beacon/pages/upload.dart';
 
 
 
@@ -13,15 +17,44 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool isAuth = false;
+  PageController pageController;
+  int pageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    pageController = PageController(
+      initialPage: 0
+    );
+
+
+    // Detects when a user is signed in
+    googleSignIn.onCurrentUserChanged.listen((account) {
+      handleSignIn(account);
+    }, onError: (err) {
+        print('Error Signin In: $err');
+    });
+
+    // ReAuth user when app is opened
+    /*
+    googleSignIn.signInSilently(suppressErrors: false).then((account) {
+      handleSignIn(account);
+    }).catchError((err) {
+      print('Error Signin In: $err');
+      print('isAuth: $isAuth');
+    });
+    */
+  }
 
 
   // Determines if user is signed in
   handleSignIn(GoogleSignInAccount account) {
     if (account != null) {
-        print('User signed in: $account');
         setState(() {
           isAuth = true;
         });
+        print('User signed in: $account');
       } else {
         setState(() {
           isAuth = false;
@@ -30,43 +63,85 @@ class _HomeState extends State<Home> {
   }
 
 
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
+
+
   // Handle account logins
   login() {
     googleSignIn.signIn();
+
   }
+
 
   // Handle account logout
   logout() {
     googleSignIn.signOut();
   }
 
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Detects when a user is signed in
-    googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
-      handleSignIn(account);
-    }, onError: (err) {
-        print('Error Signin In: $err');
-    });
-
-    // ReAuth user when app is opened
-    googleSignIn.signInSilently(suppressErrors: false).then((account) {
-      handleSignIn(account);
-    }).catchError((err) {
-      print('Error Signin In: $err');
+  onPageChanged(int pageIndex) {
+    setState(() {
+      this.pageIndex = pageIndex;
     });
   }
 
+  onTap(int pageIndex) {
+    pageController.jumpToPage(pageIndex);
+  }
 
   // Screen to be displayed for Authenticated users
-  Widget buildAuthScreen() {
+  Scaffold buildAuthScreen() {
+    return Scaffold(
+      body: PageView(
+        children: <Widget>[
+          Timeline(),
+          ActivityFeed(),
+          Upload(),
+          Search(),
+          Profile(),
+        ],
+        controller: pageController,
+        onPageChanged: onPageChanged,
+        physics: NeverScrollableScrollPhysics(),
+      ),
+      bottomNavigationBar: CupertinoTabBar(
+        currentIndex: pageIndex,
+        onTap: onTap,
+        activeColor: Theme.of(context).primaryColor,
+        items: [
+          // Timeline
+          BottomNavigationBarItem(
+            icon: Icon(Icons.whatshot)
+          ),
+          // Activity Feed
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications_active)
+          ),
+          // Upload
+          BottomNavigationBarItem(
+            icon: Icon(Icons.photo_camera, size: 35.0,)
+          ),
+          // Search
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search)
+          ),
+          // Profile
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle)
+          ),
+        ]
+      ),
+    );
+    /*
     return RaisedButton(
+      color: Colors.white,
       child: Text('Logout'),
       onPressed: logout(),
     );
+    */
   }
 
 
