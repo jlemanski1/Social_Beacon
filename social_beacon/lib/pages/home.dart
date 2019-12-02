@@ -7,10 +7,66 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool isAuth = false;
+
+  // Screen to be displayed for Authenticated users
+  Widget buildAuthScreen() {
+    return Text('Authenticated');
+  }
+
+
+  // Screen to be displayed for unAthenticated users
+  Scaffold buildUnAuthScreen() {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Color(0XFF6A82FB),
+              Color(0XFFFC5C7D),
+            ]
+          )
+        ),
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Social Beacon',
+              style: TextStyle(
+                fontFamily: 'Signatra',
+                fontSize: 90.0,
+                color: Colors.white,
+              )
+            ),
+            GestureDetector(
+              onTap: () {
+                
+              },
+              
+              child: Container(
+                width: 260.0,
+                height: 60.0,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/google_signin_button.png'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Text(
-      'Home'
-    );
+    return isAuth ? buildAuthScreen() :  buildUnAuthScreen();
+
   }
 }
