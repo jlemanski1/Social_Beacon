@@ -10,8 +10,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,  // Hide Banner in debug mode
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.deepPurple,
+        primaryColor: Color(0XFF6A82FB),
+        accentColor: Color(0XFFFC5C7D),
       ),
       home: Home(),
     );
