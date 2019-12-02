@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
 import 'package:social_beacon/pages/activity_feed.dart';
 import 'package:social_beacon/pages/timeline.dart';
 import 'package:social_beacon/pages/upload.dart';
+import 'package:social_beacon/pages/profile.dart';
+import 'package:social_beacon/pages/search.dart';
 
 
 
@@ -28,7 +31,6 @@ class _HomeState extends State<Home> {
       initialPage: 0
     );
 
-
     // Detects when a user is signed in
     googleSignIn.onCurrentUserChanged.listen((account) {
       handleSignIn(account);
@@ -37,14 +39,13 @@ class _HomeState extends State<Home> {
     });
 
     // ReAuth user when app is opened
-    /*
     googleSignIn.signInSilently(suppressErrors: false).then((account) {
       handleSignIn(account);
     }).catchError((err) {
       print('Error Signin In: $err');
       print('isAuth: $isAuth');
     });
-    */
+    
   }
 
 
@@ -89,7 +90,11 @@ class _HomeState extends State<Home> {
   }
 
   onTap(int pageIndex) {
-    pageController.jumpToPage(pageIndex);
+    pageController.animateToPage(
+      pageIndex,
+      duration: Duration(milliseconds: 200),
+      curve: Curves.easeInOut
+    );
   }
 
   // Screen to be displayed for Authenticated users
