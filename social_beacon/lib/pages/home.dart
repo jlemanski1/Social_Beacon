@@ -9,10 +9,13 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   bool isAuth = false;
 
+  // Screen to be displayed for Authenticated users
   Widget buildAuthScreen() {
     return Text('Authenticated');
   }
 
+
+  // Screen to be displayed for unAthenticated users
   Scaffold buildUnAuthScreen() {
     return Scaffold(
       body: Container(
@@ -21,8 +24,8 @@ class _HomeState extends State<Home> {
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
             colors: [
-              Colors.teal,
-              Colors.purple,
+              Color(0XFF6A82FB),
+              Color(0XFFFC5C7D),
             ]
           )
         ),
