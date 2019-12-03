@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:social_beacon/pages/activity_feed.dart';
+import 'package:social_beacon/pages/create_account.dart';
 import 'package:social_beacon/pages/timeline.dart';
 import 'package:social_beacon/pages/upload.dart';
 import 'package:social_beacon/pages/profile.dart';
@@ -11,7 +13,8 @@ import 'package:social_beacon/pages/search.dart';
 
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
-
+final usersRef = Firestore.instance.collection('users');
+final DateTime timestamp = DateTime.now();
 
 class Home extends StatefulWidget {
   @override
@@ -55,7 +58,7 @@ class _HomeState extends State<Home> {
         setState(() {
           isAuth = true;
         });
-        print('User signed in: $account');
+        createFirestoreUser();
       } else {
         setState(() {
           isAuth = false;
@@ -63,6 +66,30 @@ class _HomeState extends State<Home> {
       }
   }
 
+  // Creates a user in the firestore database
+  createFirestoreUser() async {
+    // Check if user exists in users collection
+    final GoogleSignInAccount user = googleSignIn.currentUser;
+    final DocumentSnapshot doc = await usersRef.document(user.id).get();
+
+    if (!doc.exists) {
+    // If user doesn't exist, nav to create profile page
+    final username = await Navigator.push(context, MaterialPageRoute(builder: (context) => CreateAccount()));
+
+      // Get username fromm profile, use to create user document in users collection
+      usersRef.document(user.id).setData({
+        'id': user.id,
+        'username': username,
+        'photoUrl': user.photoUrl,
+        'email': user.email,
+        'displayName': user.displayName,
+        'bio': '',
+        'timestamp': timestamp,
+
+      });
+
+    }
+  }
 
   @override
   void dispose() {
@@ -102,7 +129,12 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: PageView(
         children: <Widget>[
-          Timeline(),
+          //Timeline(),
+          RaisedButton(
+            color: Colors.white,
+            child: Text('Logout'),
+            onPressed: logout(),
+          ),
           ActivityFeed(),
           Upload(),
           Search(),
@@ -140,13 +172,6 @@ class _HomeState extends State<Home> {
         ]
       ),
     );
-    /*
-    return RaisedButton(
-      color: Colors.white,
-      child: Text('Logout'),
-      onPressed: logout(),
-    );
-    */
   }
 
 
