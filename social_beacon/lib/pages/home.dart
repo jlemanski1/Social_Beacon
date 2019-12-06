@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:social_beacon/models/user.dart';
 
 import 'package:social_beacon/pages/activity_feed.dart';
 import 'package:social_beacon/pages/create_account.dart';
@@ -15,6 +16,7 @@ import 'package:social_beacon/pages/search.dart';
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final usersRef = Firestore.instance.collection('users');
 final DateTime timestamp = DateTime.now();
+User currentUser;
 
 class Home extends StatefulWidget {
   @override
@@ -70,7 +72,7 @@ class _HomeState extends State<Home> {
   createFirestoreUser() async {
     // Check if user exists in users collection
     final GoogleSignInAccount user = googleSignIn.currentUser;
-    final DocumentSnapshot doc = await usersRef.document(user.id).get();
+    DocumentSnapshot doc = await usersRef.document(user.id).get();
 
     if (!doc.exists) {
     // If user doesn't exist, nav to create profile page
@@ -87,8 +89,12 @@ class _HomeState extends State<Home> {
         'timestamp': timestamp,
 
       });
-
+      doc = await usersRef.document(user.id).get(); // Update doc
     }
+
+    currentUser = User.fromDocument(doc);
+    print(currentUser);
+    print(currentUser.username);
   }
 
   @override
