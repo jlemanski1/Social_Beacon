@@ -30,12 +30,17 @@ class _SearchState extends State<Search> {
 
   // Build out content section when there is no content
   Container buildNoContent() {
+    final Orientation orientation = MediaQuery.of(context).orientation;
+
     return Container(
       child: Center(
         child: ListView(
           shrinkWrap: true,
           children: <Widget>[
-            SvgPicture.asset('assets/images/search.svg', height: 300.0),
+            SvgPicture.asset(
+              'assets/images/search.svg',
+              height: orientation == Orientation.portrait ? 300.0 : 200.0,  // Change size for landscape orientation
+            ),
             Text(
               'Find Users',
               textAlign: TextAlign.center,
