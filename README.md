@@ -61,18 +61,13 @@ flutter pub get
 ### Prerequisites
 
 How to install and verify prerequisite
-*  **Dart**
-```sh
+* [**Dart**](https://dart.dev/get-dart)
 
-```
-* **Flutter**
-```sh
+* [**Flutter**](https://flutter.dev/docs/get-started/install)
 
-```
-*  **Android Studio**
-```sh
+*  [**Android Studio**](https://developer.android.com/studio/install)
 
-```
+
 <!-- ROADMAP -->
 ## Roadmap
 
