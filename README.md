@@ -43,10 +43,16 @@ Short description
 * [Dart](https://dart.dev/)
 * [Flutter](https://flutter.dev/)
 
-
 <!-- GETTING STARTED -->
-## Getting Started
+## Prerequisites
+Install before downloading and running project.
+* [**Dart**](https://dart.dev/get-dart)
 
+* [**Flutter**](https://flutter.dev/docs/get-started/install)
+
+*  [**Android Studio**](https://developer.android.com/studio/install)
+
+## Getting Started
 
 1. Clone the repo
 ```sh
@@ -58,14 +64,6 @@ cd app_dir
 flutter pub get
 ```
 
-### Prerequisites
-
-How to install and verify prerequisite
-* [**Dart**](https://dart.dev/get-dart)
-
-* [**Flutter**](https://flutter.dev/docs/get-started/install)
-
-*  [**Android Studio**](https://developer.android.com/studio/install)
 
 
 <!-- ROADMAP -->
