@@ -3,16 +3,21 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:social_beacon/models/user.dart';
 
 
 class Upload extends StatefulWidget {
+  final User currentUser;
+
+  Upload({this.currentUser});
+
   @override
   _UploadState createState() => _UploadState();
 }
 
 class _UploadState extends State<Upload> {
   File file;
-
+  
 
   handleChooseImage() async {
     Navigator.pop(context); // Remove dialog first
@@ -92,8 +97,40 @@ class _UploadState extends State<Upload> {
     );
   }
 
+  clearImage() {
+    setState(() {
+      file = null;
+    });
+  }
+
   buildUploadForm() {
-    return Text('File loaded');
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white70,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black,),
+          onPressed: clearImage,
+          
+        ),
+        title: Text(
+          'Caption Post',
+          style: TextStyle(color: Colors.black),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () => print('pressed'),
+            child: Text(
+              'Post',
+              style: TextStyle(
+                color: Colors.blueAccent,
+                fontWeight: FontWeight.bold,
+                fontSize: 20.0,
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   @override
