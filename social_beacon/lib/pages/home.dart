@@ -51,7 +51,6 @@ class _HomeState extends State<Home> {
       handleSignIn(account);
     }).catchError((err) {
       print('Error Signin In: $err');
-      print('isAuth: $isAuth');
     });
     
   }
@@ -60,10 +59,10 @@ class _HomeState extends State<Home> {
   // Determines if user is signed in
   handleSignIn(GoogleSignInAccount account) {
     if (account != null) {
+        createFirestoreUser();
         setState(() {
           isAuth = true;
         });
-        createFirestoreUser();
       } else {
         setState(() {
           isAuth = false;
@@ -73,7 +72,7 @@ class _HomeState extends State<Home> {
 
   // Creates a user in the firestore database
   createFirestoreUser() async {
-    // Check if user exists in users collection
+    // Check if user exists in users collection (according to id)
     final GoogleSignInAccount user = googleSignIn.currentUser;
     DocumentSnapshot doc = await usersRef.document(user.id).get();
 
@@ -96,8 +95,6 @@ class _HomeState extends State<Home> {
     }
 
     currentUser = User.fromDocument(doc);
-    print(currentUser);
-    print(currentUser.username);
   }
 
   @override
@@ -110,7 +107,6 @@ class _HomeState extends State<Home> {
   // Handle account logins
   login() {
     googleSignIn.signIn();
-
   }
 
 
@@ -214,7 +210,7 @@ class _HomeState extends State<Home> {
               )
             ),
             GestureDetector(
-              onTap: login(),
+              onTap: login,
               child: Container(
                 width: 260.0,
                 height: 60.0,

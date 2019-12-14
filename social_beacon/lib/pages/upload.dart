@@ -20,7 +20,7 @@ class Upload extends StatefulWidget {
   _UploadState createState() => _UploadState();
 }
 
-class _UploadState extends State<Upload> {
+class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Upload> {
   TextEditingController locationController = TextEditingController();
   TextEditingController captionController = TextEditingController();
   File file;
@@ -108,12 +108,14 @@ class _UploadState extends State<Upload> {
     );
   }
 
+
   // Resets the state's file
   clearImage() {
     setState(() {
       file = null;
     });
   }
+
 
   // Compress images before uploading to save on Firebase Storage costs
   compressImage() async {
@@ -130,6 +132,7 @@ class _UploadState extends State<Upload> {
     });
   }
 
+
   // Upload img to Firebase Storage
   Future uploadImage(imgFile) async {
     StorageUploadTask uploadTask = storageRef.child('post_$postId.jpg').putFile(imgFile);
@@ -137,6 +140,7 @@ class _UploadState extends State<Upload> {
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
   }
+
 
   // Add post with created mediaUrl to Cloudstore
   createPostInFirestore({String mediaUrl, String location, String description}) {
@@ -150,6 +154,7 @@ class _UploadState extends State<Upload> {
       'likes': {}
     });
   }
+
 
   // Handles everything pertaining to post uploads/submissions
   handleSubmitPost() async {
@@ -174,6 +179,7 @@ class _UploadState extends State<Upload> {
     setState(() {
       file = null;
       isUploading = false;
+      postId = Uuid().v4(); // Reset postId for next post
     });
   }
 
@@ -280,8 +286,11 @@ class _UploadState extends State<Upload> {
     );
   }
 
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return file == null ? buildSplashScreen() : buildUploadForm();
   }
 }
