@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,6 +15,8 @@ import 'package:social_beacon/pages/search.dart';
 
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
+final StorageReference storageRef = FirebaseStorage.instance.ref();
+final postsRef = Firestore.instance.collection('posts');
 final usersRef = Firestore.instance.collection('users');
 final DateTime timestamp = DateTime.now();
 User currentUser;
@@ -31,10 +34,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-
-    pageController = PageController(
-      initialPage: 0
-    );
+    pageController = PageController();
 
     // Detects when a user is signed in
     googleSignIn.onCurrentUserChanged.listen((account) {
@@ -48,7 +48,6 @@ class _HomeState extends State<Home> {
       handleSignIn(account);
     }).catchError((err) {
       print('Error Signin In: $err');
-      print('isAuth: $isAuth');
     });
     
   }
@@ -57,10 +56,10 @@ class _HomeState extends State<Home> {
   // Determines if user is signed in
   handleSignIn(GoogleSignInAccount account) {
     if (account != null) {
+        createFirestoreUser();
         setState(() {
           isAuth = true;
         });
-        createFirestoreUser();
       } else {
         setState(() {
           isAuth = false;
@@ -70,7 +69,7 @@ class _HomeState extends State<Home> {
 
   // Creates a user in the firestore database
   createFirestoreUser() async {
-    // Check if user exists in users collection
+    // Check if user exists in users collection (according to id)
     final GoogleSignInAccount user = googleSignIn.currentUser;
     DocumentSnapshot doc = await usersRef.document(user.id).get();
 
@@ -93,8 +92,6 @@ class _HomeState extends State<Home> {
     }
 
     currentUser = User.fromDocument(doc);
-    print(currentUser);
-    print(currentUser.username);
   }
 
   @override
@@ -107,7 +104,6 @@ class _HomeState extends State<Home> {
   // Handle account logins
   login() {
     googleSignIn.signIn();
-
   }
 
 
@@ -211,7 +207,7 @@ class _HomeState extends State<Home> {
               )
             ),
             GestureDetector(
-              onTap: login(),
+              onTap: login,
               child: Container(
                 width: 260.0,
                 height: 60.0,

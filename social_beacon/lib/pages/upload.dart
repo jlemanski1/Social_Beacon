@@ -1,11 +1,15 @@
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:social_beacon/models/user.dart';
-
+import 'package:social_beacon/widgets/progress.dart';
+import 'package:image/image.dart' as Im;
+import 'package:uuid/uuid.dart';
+import 'package:social_beacon/pages/home.dart';
 
 class Upload extends StatefulWidget {
   final User currentUser;
@@ -16,10 +20,14 @@ class Upload extends StatefulWidget {
   _UploadState createState() => _UploadState();
 }
 
-class _UploadState extends State<Upload> {
+class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Upload> {
+  TextEditingController locationController = TextEditingController();
+  TextEditingController captionController = TextEditingController();
   File file;
-  
+  bool isUploading = false;
+  String postId = Uuid().v4();
 
+  // Handles opening and selecting an image from the gallery
   handleChooseImage() async {
     Navigator.pop(context); // Remove dialog first
     File file = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -29,6 +37,7 @@ class _UploadState extends State<Upload> {
   }
 
 
+  // Handles opening the camera and taking photos
   handleTakePhoto() async {
     Navigator.pop(context); // Remove dialog first
     File file = await ImagePicker.pickImage(
@@ -42,6 +51,7 @@ class _UploadState extends State<Upload> {
   }
 
 
+  // The dialog for image/photo uploads
   selectImage(parentContext) {
     return showDialog(
       context: parentContext,
@@ -67,7 +77,7 @@ class _UploadState extends State<Upload> {
     );
   }
 
-
+  // Builds the splashscreen to show when file is null
   Container buildSplashScreen() {
     return Container(
       color: Theme.of(context).accentColor.withOpacity(0.6),
@@ -98,12 +108,83 @@ class _UploadState extends State<Upload> {
     );
   }
 
+
+  // Resets the state's file
   clearImage() {
     setState(() {
       file = null;
     });
   }
 
+
+  // Compress images before uploading to save on Firebase Storage costs
+  compressImage() async {
+    // Create tmp dir for image path
+    final tmpDir = await getTemporaryDirectory();
+    final path = tmpDir.path;
+
+    Im.Image imgFile = Im.decodeImage(file.readAsBytesSync());  // read in Image file
+    final compressedImgFile = File('$path/img_$postId.jpg')..writeAsBytesSync(Im.encodeJpg(imgFile, quality: 85));  // Write compressed img to created unique path
+
+    // Update state file with new compressed one
+    setState(() {
+      file = compressedImgFile;
+    });
+  }
+
+
+  // Upload img to Firebase Storage
+  Future uploadImage(imgFile) async {
+    StorageUploadTask uploadTask = storageRef.child('post_$postId.jpg').putFile(imgFile);
+    StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
+    String downloadUrl = await storageSnap.ref.getDownloadURL();
+    return downloadUrl;
+  }
+
+
+  // Add post with created mediaUrl to Cloudstore
+  createPostInFirestore({String mediaUrl, String location, String description}) {
+    postsRef.document(widget.currentUser.id).collection('userPosts').document(postId).setData({
+      'postId': postId,
+      'ownerId': widget.currentUser.id,
+      'username': widget.currentUser.username,
+      'mediaUrl': mediaUrl,
+      'location': location,
+      'timestamp': timestamp,
+      'likes': {}
+    });
+  }
+
+
+  // Handles everything pertaining to post uploads/submissions
+  handleSubmitPost() async {
+    // Set flag
+    setState(() {
+      isUploading = true;
+    });
+    await compressImage();  // Compress photo
+    String mediaUrl = await uploadImage(file);  // Get mediaUrl from Firebase storage
+    
+    // Create post with new mediaUrl for the photo
+    createPostInFirestore(
+      mediaUrl: mediaUrl,
+      location: locationController.text,
+      description: captionController.text,
+    );
+    // clear TextEditingControllers
+    captionController.clear();
+    locationController.clear();
+
+    // Reset file and isUploading after submission
+    setState(() {
+      file = null;
+      isUploading = false;
+      postId = Uuid().v4(); // Reset postId for next post
+    });
+  }
+
+
+  // builds the upload form to show when there is a file
   buildUploadForm() {
     return Scaffold(
       appBar: AppBar(
@@ -119,7 +200,7 @@ class _UploadState extends State<Upload> {
         ),
         actions: <Widget>[
           FlatButton(
-            onPressed: () => print('pressed'),
+            onPressed: isUploading ? null : () => handleSubmitPost(),
             child: Text(
               'Post',
               style: TextStyle(
@@ -133,6 +214,7 @@ class _UploadState extends State<Upload> {
       ),
       body: ListView(
         children: <Widget>[
+          isUploading ? linearProgress() : Text(''),
           Container(
             height: 222.0,
             width: MediaQuery.of(context).size.width * .8,
@@ -160,6 +242,7 @@ class _UploadState extends State<Upload> {
             title: Container(
               width: 250.0,
               child: TextField(
+                controller: captionController,
                 decoration: InputDecoration(
                   hintText: 'Write a caption',
                   border: InputBorder.none,
@@ -173,6 +256,7 @@ class _UploadState extends State<Upload> {
             title: Container(
               width: 250.0,
               child: TextField(
+                controller: locationController,
                 decoration: InputDecoration(
                   hintText: 'Where was this taken?',
                   border: InputBorder.none,
@@ -202,8 +286,11 @@ class _UploadState extends State<Upload> {
     );
   }
 
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return file == null ? buildSplashScreen() : buildUploadForm();
   }
 }
