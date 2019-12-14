@@ -17,10 +17,10 @@ class _CreateAccountState extends State<CreateAccount> {
   // Save the input form state and send username back to CreateFirestoreUser (home.dart)
   submit() {
     final form = _formKey.currentState;
+
     if (form.validate()) {
       form.save();
       final SnackBar snackBar = SnackBar(content: Text('Welcome $username!'));
-
       // Show SnackBar for 2 secs then pop the screen
       _scaffoldKey.currentState.showSnackBar(snackBar);     
       Timer(Duration(seconds: 2), () {

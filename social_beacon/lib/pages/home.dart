@@ -34,10 +34,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-
-    pageController = PageController(
-      initialPage: 0
-    );
+    pageController = PageController();
 
     // Detects when a user is signed in
     googleSignIn.onCurrentUserChanged.listen((account) {
