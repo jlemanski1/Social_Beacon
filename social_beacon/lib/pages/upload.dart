@@ -27,6 +27,7 @@ class _UploadState extends State<Upload> {
   bool isUploading = false;
   String postId = Uuid().v4();
 
+  // Handles opening and selecting an image from the gallery
   handleChooseImage() async {
     Navigator.pop(context); // Remove dialog first
     File file = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -36,6 +37,7 @@ class _UploadState extends State<Upload> {
   }
 
 
+  // Handles opening the camera and taking photos
   handleTakePhoto() async {
     Navigator.pop(context); // Remove dialog first
     File file = await ImagePicker.pickImage(
@@ -49,6 +51,7 @@ class _UploadState extends State<Upload> {
   }
 
 
+  // The dialog for image/photo uploads
   selectImage(parentContext) {
     return showDialog(
       context: parentContext,
@@ -74,7 +77,7 @@ class _UploadState extends State<Upload> {
     );
   }
 
-
+  // Builds the splashscreen to show when file is null
   Container buildSplashScreen() {
     return Container(
       color: Theme.of(context).accentColor.withOpacity(0.6),
@@ -105,13 +108,14 @@ class _UploadState extends State<Upload> {
     );
   }
 
+  // Resets the state's file
   clearImage() {
     setState(() {
       file = null;
     });
   }
 
-
+  // Compress images before uploading to save on Firebase Storage costs
   compressImage() async {
     // Create tmp dir for image path
     final tmpDir = await getTemporaryDirectory();
@@ -147,14 +151,16 @@ class _UploadState extends State<Upload> {
     });
   }
 
-
+  // Handles everything pertaining to post uploads/submissions
   handleSubmitPost() async {
     // Set flag
     setState(() {
       isUploading = true;
     });
-    await compressImage();
-    String mediaUrl = await uploadImage(file);
+    await compressImage();  // Compress photo
+    String mediaUrl = await uploadImage(file);  // Get mediaUrl from Firebase storage
+    
+    // Create post with new mediaUrl for the photo
     createPostInFirestore(
       mediaUrl: mediaUrl,
       location: locationController.text,
@@ -172,6 +178,7 @@ class _UploadState extends State<Upload> {
   }
 
 
+  // builds the upload form to show when there is a file
   buildUploadForm() {
     return Scaffold(
       appBar: AppBar(
