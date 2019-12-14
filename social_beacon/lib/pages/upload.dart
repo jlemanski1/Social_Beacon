@@ -1,11 +1,15 @@
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:social_beacon/models/user.dart';
-
+import 'package:social_beacon/widgets/progress.dart';
+import 'package:image/image.dart' as Im;
+import 'package:uuid/uuid.dart';
+import 'package:social_beacon/pages/home.dart';
 
 class Upload extends StatefulWidget {
   final User currentUser;
@@ -17,8 +21,11 @@ class Upload extends StatefulWidget {
 }
 
 class _UploadState extends State<Upload> {
+  TextEditingController locationController = TextEditingController();
+  TextEditingController captionController = TextEditingController();
   File file;
-  
+  bool isUploading = false;
+  String postId = Uuid().v4();
 
   handleChooseImage() async {
     Navigator.pop(context); // Remove dialog first
@@ -104,6 +111,67 @@ class _UploadState extends State<Upload> {
     });
   }
 
+
+  compressImage() async {
+    // Create tmp dir for image path
+    final tmpDir = await getTemporaryDirectory();
+    final path = tmpDir.path;
+
+    Im.Image imgFile = Im.decodeImage(file.readAsBytesSync());  // read in Image file
+    final compressedImgFile = File('$path/img_$postId.jpg')..writeAsBytesSync(Im.encodeJpg(imgFile, quality: 85));  // Write compressed img to created unique path
+
+    // Update state file with new compressed one
+    setState(() {
+      file = compressedImgFile;
+    });
+  }
+
+  // Upload img to Firebase Storage
+  Future uploadImage(imgFile) async {
+    StorageUploadTask uploadTask = storageRef.child('post_$postId.jpg').putFile(imgFile);
+    StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
+    String downloadUrl = await storageSnap.ref.getDownloadURL();
+    return downloadUrl;
+  }
+
+  // Add post with created mediaUrl to Cloudstore
+  createPostInFirestore({String mediaUrl, String location, String description}) {
+    postsRef.document(widget.currentUser.id).collection('userPosts').document(postId).setData({
+      'postId': postId,
+      'ownerId': widget.currentUser.id,
+      'username': widget.currentUser.username,
+      'mediaUrl': mediaUrl,
+      'location': location,
+      'timestamp': timestamp,
+      'likes': {}
+    });
+  }
+
+
+  handleSubmitPost() async {
+    // Set flag
+    setState(() {
+      isUploading = true;
+    });
+    await compressImage();
+    String mediaUrl = await uploadImage(file);
+    createPostInFirestore(
+      mediaUrl: mediaUrl,
+      location: locationController.text,
+      description: captionController.text,
+    );
+    // clear TextEditingControllers
+    captionController.clear();
+    locationController.clear();
+
+    // Reset file and isUploading after submission
+    setState(() {
+      file = null;
+      isUploading = false;
+    });
+  }
+
+
   buildUploadForm() {
     return Scaffold(
       appBar: AppBar(
@@ -119,7 +187,7 @@ class _UploadState extends State<Upload> {
         ),
         actions: <Widget>[
           FlatButton(
-            onPressed: () => print('pressed'),
+            onPressed: isUploading ? null : () => handleSubmitPost(),
             child: Text(
               'Post',
               style: TextStyle(
@@ -133,6 +201,7 @@ class _UploadState extends State<Upload> {
       ),
       body: ListView(
         children: <Widget>[
+          isUploading ? linearProgress() : Text(''),
           Container(
             height: 222.0,
             width: MediaQuery.of(context).size.width * .8,
@@ -160,6 +229,7 @@ class _UploadState extends State<Upload> {
             title: Container(
               width: 250.0,
               child: TextField(
+                controller: captionController,
                 decoration: InputDecoration(
                   hintText: 'Write a caption',
                   border: InputBorder.none,
@@ -173,6 +243,7 @@ class _UploadState extends State<Upload> {
             title: Container(
               width: 250.0,
               child: TextField(
+                controller: locationController,
                 decoration: InputDecoration(
                   hintText: 'Where was this taken?',
                   border: InputBorder.none,
