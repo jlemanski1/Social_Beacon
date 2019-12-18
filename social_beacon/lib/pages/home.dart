@@ -142,7 +142,9 @@ class _HomeState extends State<Home> {
             currentUser: currentUser,
           ),
           Search(),
-          Profile(),
+          Profile(
+            profileId: currentUser?.id,
+          ),
         ],
         controller: pageController,
         onPageChanged: onPageChanged,

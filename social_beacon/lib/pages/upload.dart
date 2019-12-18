@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:social_beacon/models/user.dart';
@@ -269,7 +270,7 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
             height: 100.0,
             alignment: Alignment.center,
             child: RaisedButton.icon(
-              onPressed: () => print('get user location'),
+              onPressed: getUserLocation,
               icon: Icon(Icons.my_location, color: Colors.white,),
               label: Text(
                 'Use Current Location',
@@ -284,6 +285,15 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
         ],
       ),
     );
+  }
+
+  // Get the user's current location and sets a post's city, Country
+  getUserLocation() async {
+    Position userPos = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> placemarks = await Geolocator().placemarkFromCoordinates(userPos.latitude, userPos.longitude);
+    
+    String location = '${placemarks[0].locality}, ${placemarks[0].country}';
+    locationController.text = location; // Set post text to location
   }
 
   bool get wantKeepAlive => true;
