@@ -16,10 +16,13 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController displayNameController = TextEditingController();
   TextEditingController bioController = TextEditingController();
   bool isLoading = false;
   User user;
+  bool _displayNameValid = true;
+  bool _bioValid = true;
 
 
   @override
@@ -63,8 +66,11 @@ class _EditProfileState extends State<EditProfile> {
         ),
         TextField(
           controller: displayNameController,
-          decoration: InputDecoration(hintText: 'Update display name'),
-        )
+          decoration: InputDecoration(
+            hintText: 'Update display name',
+            errorText: _displayNameValid ? null : 'Display name too short',
+          ),
+        ),
       ],
     );
   }
@@ -84,16 +90,44 @@ class _EditProfileState extends State<EditProfile> {
         ),
         TextField(
           controller: bioController,
-          decoration: InputDecoration(hintText: 'Update bio'),
+          decoration: InputDecoration(
+            hintText: 'Update bio',
+            errorText: _bioValid ? null : 'Bio too long',
+          ),
         )
       ],
     );
   }
 
 
+  // Check for validity and update user profile
+  updateProfileData() {
+    // Check that inputted text is valid
+    setState(() {
+      displayNameController.text.trim().length < 3 || 
+      displayNameController.text.isEmpty ? _displayNameValid = false : _displayNameValid = true;
+
+      bioController.text.trim().length > 240 ? _bioValid = false : _bioValid = true;
+    });
+
+    // If valid, update user profile in firestore
+    if (_displayNameValid && _bioValid) {
+      usersRef.document(widget.currentUserId).updateData({
+        'displayName': displayNameController.text,
+        'bio': bioController.text,
+      });
+
+      //  Show snackbar to user so they know it's been updated
+      SnackBar snackBar = SnackBar(content: Text('Profile Updated!'));
+      _scaffoldKey.currentState.showSnackBar(snackBar);
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
@@ -135,7 +169,7 @@ class _EditProfileState extends State<EditProfile> {
                   ),
                 ),
                 RaisedButton(
-                  onPressed: () => print('update profile data'),
+                  onPressed: updateProfileData,
                   child: Text(
                     'Update profile',
                     style: TextStyle(
