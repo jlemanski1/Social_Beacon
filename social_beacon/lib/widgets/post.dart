@@ -121,14 +121,86 @@ class _PostState extends State<Post> {
     );
   }
 
+  buildPostImage() {
+    return GestureDetector(
+      onDoubleTap: () => print('liking post'),
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          Image.network(mediaUrl)
+        ],
+      ),
+    );
+  }
+
+  buildPostFooter() {
+    return Column(
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0),),
+            GestureDetector(
+              onTap: () => print('liking post'),
+              child: Icon(
+                Icons.favorite_border,
+                size: 28.0,
+                color: Colors.pink,
+              ),
+            ),
+            Padding(padding: EdgeInsets.only(right: 20.0),),
+            GestureDetector(
+              onTap: () => print('showing comments'),
+              child: Icon(
+                Icons.chat,
+                size: 28.0,
+                color: Colors.blue[900],
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(left: 20.0),
+              child: Text(
+                '$likeCount likes',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(left: 20.0),
+              child: Text(
+                '$username ',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Expanded(child: Text(description),),
+          ],
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         buildPostHeader(),
-        //buildPostImage(),
-        //buildPostFooter(),
+        buildPostImage(),
+        buildPostFooter(),
       ],
     );
   }
