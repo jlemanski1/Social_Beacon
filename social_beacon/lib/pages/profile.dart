@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:social_beacon/models/user.dart';
 import 'package:social_beacon/pages/edit_profile.dart';
 import 'package:social_beacon/pages/home.dart';
 import 'package:social_beacon/widgets/header.dart';
+import 'package:social_beacon/widgets/post.dart';
 import 'package:social_beacon/widgets/progress.dart';
 
 
@@ -18,6 +20,36 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id; // Set current user's id if not null
+  bool isLoading = false;
+  int postCount = 0;
+  List<Post> posts = [];
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    getProfilePosts();
+  }
+
+
+  // Fetches the users posts from cloud Firestore
+  getProfilePosts() async {
+    // Start loading
+    setState(() {
+      isLoading = true;
+    });
+
+    // Get user posts & sort by latest
+    QuerySnapshot snapshot = await postsRef.document(widget.profileId).collection('userPosts').orderBy('timestamp', descending: true).getDocuments();
+
+    // End loading, set post count, & map posts to list
+    setState(() {
+      isLoading = false;
+      postCount = snapshot.documents.length;
+      posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
+    });
+  }
 
 
   // Builds the column and adds count for posts, followers, following
@@ -124,7 +156,7 @@ class _ProfileState extends State<Profile> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
-                            buildCountColumn('posts', 0),
+                            buildCountColumn('posts', postCount),
                             buildCountColumn('followers', 0),
                             buildCountColumn('following', 0),
                           ],
@@ -173,6 +205,13 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  // Returns aa column of the users posts in state
+  buildProfilePosts() {
+    if (isLoading) {
+      return circularProgress();
+    }
+    return Column(children: posts,);
+  }
 
 
   @override
@@ -182,6 +221,10 @@ class _ProfileState extends State<Profile> {
       body: ListView(
         children: <Widget>[
           buildProfileHeader(),
+          Divider(
+            height: 0.0,
+          ),
+          buildProfilePosts(),
         ],
       )
     );
