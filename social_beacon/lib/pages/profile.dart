@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:social_beacon/models/user.dart';
 import 'package:social_beacon/pages/edit_profile.dart';
 import 'package:social_beacon/pages/home.dart';
@@ -207,10 +208,32 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  // Returns aa column of the users posts in state
+  // Returns the users posts in state in either a column or grid view
   buildProfilePosts() {
     if (isLoading) {
       return circularProgress();
+    // No posts, display splash image
+    } else if (posts.isEmpty) {
+      return Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SvgPicture.asset('assets/images/no_content.svg', height: 260.0,),
+            Padding(
+              padding: EdgeInsets.only(top: 20.0),
+              child: Text(
+                'No Posts',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 40.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    // Display posts in grid
     } else if (postIsGrid) {
       List<GridTile> gridTiles = [];
       posts.forEach((post) {
@@ -226,6 +249,7 @@ class _ProfileState extends State<Profile> {
         physics: NeverScrollableScrollPhysics(),
         children: gridTiles,
       );
+    // Display posts in list
     } else if (!postIsGrid) {
       return Column(children: posts,);
     }
