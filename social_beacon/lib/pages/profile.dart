@@ -19,12 +19,13 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
+
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id; // Set current user's id if not null
   bool isLoading = false;
+  bool postIsGrid = true;   // orientation of the posts on profile page
   int postCount = 0;
   List<Post> posts = [];
-
 
   @override
   void initState() {
@@ -210,23 +211,50 @@ class _ProfileState extends State<Profile> {
   buildProfilePosts() {
     if (isLoading) {
       return circularProgress();
+    } else if (postIsGrid) {
+      List<GridTile> gridTiles = [];
+      posts.forEach((post) {
+        gridTiles.add(GridTile(child: PostTile(post)));
+      });
+
+      return GridView.count(
+        crossAxisCount: 3,
+        childAspectRatio: 1.0,
+        mainAxisSpacing: 1.5,
+        crossAxisSpacing: 1.5,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        children: gridTiles,
+      );
+    } else if (!postIsGrid) {
+      return Column(children: posts,);
     }
-    List<GridTile> gridTiles = [];
-    posts.forEach((post) {
-      gridTiles.add(GridTile(child: PostTile(post)));
+  }
+
+  // Set the profile page to display posts in grid view
+  setPostGrid(bool isGrid) {
+    setState(() {
+      this.postIsGrid = isGrid;
     });
+  }
 
-    return GridView.count(
-      crossAxisCount: 3,
-      childAspectRatio: 1.0,
-      mainAxisSpacing: 1.5,
-      crossAxisSpacing: 1.5,
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      children: gridTiles,
+  // Builds row of buttons for toggling between post orientations
+  buildTogglePostOrientation() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        IconButton(
+          onPressed: () => setPostGrid(true),
+          icon: Icon(Icons.grid_on),
+          color: postIsGrid ? Theme.of(context).primaryColor : Colors.grey,
+        ),
+        IconButton(
+          onPressed: () => setPostGrid(false),
+          icon: Icon(Icons.list),
+          color: postIsGrid ? Colors.grey : Theme.of(context).primaryColor,
+        ),
+      ],
     );
-
-    //return Column(children: posts,);
   }
 
 
@@ -237,9 +265,9 @@ class _ProfileState extends State<Profile> {
       body: ListView(
         children: <Widget>[
           buildProfileHeader(),
-          Divider(
-            height: 0.0,
-          ),
+          Divider(),
+          buildTogglePostOrientation(),
+          Divider(height: 0.0,),
           buildProfilePosts(),
         ],
       )
