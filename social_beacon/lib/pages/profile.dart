@@ -6,6 +6,7 @@ import 'package:social_beacon/pages/edit_profile.dart';
 import 'package:social_beacon/pages/home.dart';
 import 'package:social_beacon/widgets/header.dart';
 import 'package:social_beacon/widgets/post.dart';
+import 'package:social_beacon/widgets/post_tile.dart';
 import 'package:social_beacon/widgets/progress.dart';
 
 
@@ -210,7 +211,22 @@ class _ProfileState extends State<Profile> {
     if (isLoading) {
       return circularProgress();
     }
-    return Column(children: posts,);
+    List<GridTile> gridTiles = [];
+    posts.forEach((post) {
+      gridTiles.add(GridTile(child: PostTile(post)));
+    });
+
+    return GridView.count(
+      crossAxisCount: 3,
+      childAspectRatio: 1.0,
+      mainAxisSpacing: 1.5,
+      crossAxisSpacing: 1.5,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      children: gridTiles,
+    );
+
+    //return Column(children: posts,);
   }
 
 
