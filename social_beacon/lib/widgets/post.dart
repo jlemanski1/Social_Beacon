@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:social_beacon/models/user.dart';
 import 'package:social_beacon/pages/home.dart';
+import 'package:social_beacon/widgets/load_image.dart';
 import 'package:social_beacon/widgets/progress.dart';
 
 class Post extends StatefulWidget {
@@ -127,7 +128,7 @@ class _PostState extends State<Post> {
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          Image.network(mediaUrl)
+          cachedNetworkImage(mediaUrl),
         ],
       ),
     );
