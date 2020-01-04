@@ -13,13 +13,18 @@ import 'package:social_beacon/pages/profile.dart';
 import 'package:social_beacon/pages/search.dart';
 
 
-
-final GoogleSignIn googleSignIn = GoogleSignIn();
-final StorageReference storageRef = FirebaseStorage.instance.ref();
+// Firestore collection references
 final postsRef = Firestore.instance.collection('posts');
 final usersRef = Firestore.instance.collection('users');
-final DateTime timestamp = DateTime.now();
+
+// Firebase Storage ref
+final StorageReference storageRef = FirebaseStorage.instance.ref();
+
+final GoogleSignIn googleSignIn = GoogleSignIn();
 User currentUser;
+
+final DateTime timestamp = DateTime.now();
+
 
 class Home extends StatefulWidget {
   @override
@@ -36,35 +41,39 @@ class _HomeState extends State<Home> {
     super.initState();
     pageController = PageController();
 
-    // Detects when a user is signed in
+    // Detects when a user signs in
     googleSignIn.onCurrentUserChanged.listen((account) {
       handleSignIn(account);
+      print('Signing in: $account\nAuthed?: $isAuth');  //TODO: removed ugly debug print
     }, onError: (err) {
         print('Error Signin In: $err');
     });
 
+    /* TODO: Uncomment after double sign in bug is fixed. Cannot signInSilently when account is null
     // ReAuth user when app is opened
     googleSignIn.signInSilently(suppressErrors: false).then((account) {
       handleSignIn(account);
     }).catchError((err) {
       print('Error Signin In: $err');
     });
-    
+    */
   }
 
 
   // Determines if user is signed in
   handleSignIn(GoogleSignInAccount account) {
     if (account != null) {
-        createFirestoreUser();
-        setState(() {
-          isAuth = true;
-        });
-      } else {
-        setState(() {
-          isAuth = false;
-        });
-      }
+      print('handleSignIn: account != null');
+      createFirestoreUser();
+      setState(() {
+        isAuth = true;
+      });
+    } else {
+      print('handleSignIn: account == null');
+      setState(() {
+        isAuth = false;
+      });
+    }
   }
 
   // Creates a user in the firestore database
@@ -102,8 +111,8 @@ class _HomeState extends State<Home> {
 
 
   // Handle account logins
-  login() {
-    googleSignIn.signIn();
+  login() async{
+    await googleSignIn.signIn();
   }
 
 
@@ -112,12 +121,14 @@ class _HomeState extends State<Home> {
     googleSignIn.signOut();
   }
 
+  // Set page index in state and rebuild
   onPageChanged(int pageIndex) {
     setState(() {
       this.pageIndex = pageIndex;
     });
   }
 
+  // Animate to the passed in page
   onTap(int pageIndex) {
     pageController.animateToPage(
       pageIndex,
@@ -131,7 +142,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: PageView(
         children: <Widget>[
-          //Timeline(),
+          Timeline(),
           RaisedButton(
             color: Colors.white,
             child: Text('Logout'),
@@ -229,6 +240,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    print('build method: - $isAuth: ');
     return isAuth ? buildAuthScreen() :  buildUnAuthScreen();
 
   }
