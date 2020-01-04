@@ -44,32 +44,28 @@ class _HomeState extends State<Home> {
     // Detects when a user signs in
     googleSignIn.onCurrentUserChanged.listen((account) {
       handleSignIn(account);
-      print('Signing in: $account\nAuthed?: $isAuth');  //TODO: removed ugly debug print
     }, onError: (err) {
         print('Error Signin In: $err');
     });
 
-    /* TODO: Uncomment after double sign in bug is fixed. Cannot signInSilently when account is null
     // ReAuth user when app is opened
     googleSignIn.signInSilently(suppressErrors: false).then((account) {
       handleSignIn(account);
     }).catchError((err) {
       print('Error Signin In: $err');
     });
-    */
+    
   }
 
 
   // Determines if user is signed in
   handleSignIn(GoogleSignInAccount account) {
     if (account != null) {
-      print('handleSignIn: account != null');
       createFirestoreUser();
       setState(() {
         isAuth = true;
       });
     } else {
-      print('handleSignIn: account == null');
       setState(() {
         isAuth = false;
       });
@@ -110,15 +106,19 @@ class _HomeState extends State<Home> {
   }
 
 
-  // Handle account logins
-  login() async{
-    await googleSignIn.signIn();
+  // Handle Google Sign in
+  Future<void> login() async {
+    try {
+      await googleSignIn.signIn();
+    } catch (err) {
+      print(err);
+    }
   }
 
 
   // Handle account logout
-  logout() {
-    googleSignIn.signOut();
+  Future<void> logout() async{
+    await googleSignIn.disconnect();
   }
 
   // Set page index in state and rebuild
@@ -142,11 +142,11 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: PageView(
         children: <Widget>[
-          Timeline(),
+          //Timeline(),
           RaisedButton(
             color: Colors.white,
             child: Text('Logout'),
-            onPressed: logout(),
+            onPressed: logout,
           ),
           ActivityFeed(),
           Upload(
@@ -240,7 +240,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    print('build method: - $isAuth: ');
     return isAuth ? buildAuthScreen() :  buildUnAuthScreen();
 
   }
