@@ -13,13 +13,18 @@ import 'package:social_beacon/pages/profile.dart';
 import 'package:social_beacon/pages/search.dart';
 
 
-
-final GoogleSignIn googleSignIn = GoogleSignIn();
-final StorageReference storageRef = FirebaseStorage.instance.ref();
+// Firestore collection references
 final postsRef = Firestore.instance.collection('posts');
 final usersRef = Firestore.instance.collection('users');
-final DateTime timestamp = DateTime.now();
+
+// Firebase Storage ref
+final StorageReference storageRef = FirebaseStorage.instance.ref();
+
+final GoogleSignIn googleSignIn = GoogleSignIn();
 User currentUser;
+
+final DateTime timestamp = DateTime.now();
+
 
 class Home extends StatefulWidget {
   @override
@@ -36,7 +41,7 @@ class _HomeState extends State<Home> {
     super.initState();
     pageController = PageController();
 
-    // Detects when a user is signed in
+    // Detects when a user signs in
     googleSignIn.onCurrentUserChanged.listen((account) {
       handleSignIn(account);
     }, onError: (err) {
@@ -56,15 +61,15 @@ class _HomeState extends State<Home> {
   // Determines if user is signed in
   handleSignIn(GoogleSignInAccount account) {
     if (account != null) {
-        createFirestoreUser();
-        setState(() {
-          isAuth = true;
-        });
-      } else {
-        setState(() {
-          isAuth = false;
-        });
-      }
+      createFirestoreUser();
+      setState(() {
+        isAuth = true;
+      });
+    } else {
+      setState(() {
+        isAuth = false;
+      });
+    }
   }
 
   // Creates a user in the firestore database
@@ -101,23 +106,29 @@ class _HomeState extends State<Home> {
   }
 
 
-  // Handle account logins
-  login() {
-    googleSignIn.signIn();
+  // Handle Google Sign in
+  Future<void> login() async {
+    try {
+      await googleSignIn.signIn();
+    } catch (err) {
+      print(err);
+    }
   }
 
 
   // Handle account logout
-  logout() {
-    googleSignIn.signOut();
+  Future<void> logout() async{
+    await googleSignIn.disconnect();
   }
 
+  // Set page index in state and rebuild
   onPageChanged(int pageIndex) {
     setState(() {
       this.pageIndex = pageIndex;
     });
   }
 
+  // Animate to the passed in page
   onTap(int pageIndex) {
     pageController.animateToPage(
       pageIndex,
@@ -135,7 +146,7 @@ class _HomeState extends State<Home> {
           RaisedButton(
             color: Colors.white,
             child: Text('Logout'),
-            onPressed: logout(),
+            onPressed: logout,
           ),
           ActivityFeed(),
           Upload(

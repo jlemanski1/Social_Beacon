@@ -159,7 +159,7 @@ class _ProfileState extends State<Profile> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
-                            buildCountColumn('posts', postCount),
+                            buildCountColumn('posts', postCount ?? 0),
                             buildCountColumn('followers', 0),
                             buildCountColumn('following', 0),
                           ],
@@ -174,7 +174,7 @@ class _ProfileState extends State<Profile> {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(top: 12.0),
                           child: Text(
-                            user.username,
+                            user.username ?? 'Username',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16.0,
@@ -185,7 +185,7 @@ class _ProfileState extends State<Profile> {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(top: 4.0),
                           child: Text(
-                            user.displayName,
+                            user.displayName ?? 'Display Name',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
@@ -194,7 +194,7 @@ class _ProfileState extends State<Profile> {
                         Container(
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(top: 2.0),
-                          child: Text(user.bio),
+                          child: Text(user.bio ?? 'Bio'),
                         )
                       ],
                     ),
