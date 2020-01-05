@@ -24,7 +24,7 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id; // Set current user's id if not null
   bool isLoading = false;
-  bool postIsGrid = true;   // orientation of the posts on profile page
+  String postOrientation = 'grid';
   int postCount = 0;
   List<Post> posts = [];
 
@@ -210,6 +210,8 @@ class _ProfileState extends State<Profile> {
 
   // Returns the users posts in state in either a column or grid view
   buildProfilePosts() {
+    print(postOrientation); // TODO: fix postOrientation and switch to bool or enum after
+
     if (isLoading) {
       return circularProgress();
     // No posts, display splash image
@@ -234,7 +236,7 @@ class _ProfileState extends State<Profile> {
         ),
       );
     // Display posts in grid
-    } else if (postIsGrid) {
+    } else if (postOrientation == 'grid') {
       List<GridTile> gridTiles = [];
       posts.forEach((post) {
         gridTiles.add(GridTile(child: PostTile(post)));
@@ -250,15 +252,15 @@ class _ProfileState extends State<Profile> {
         children: gridTiles,
       );
     // Display posts in list
-    } else if (!postIsGrid) {
+    } else if (postOrientation == 'list') {
       return Column(children: posts,);
     }
   }
 
   // Set the profile page to display posts in grid view
-  setPostGrid(bool isGrid) {
+  setPostOrientation(String orientation) {
     setState(() {
-      this.postIsGrid = isGrid;
+      this.postOrientation = postOrientation;
     });
   }
 
@@ -268,14 +270,14 @@ class _ProfileState extends State<Profile> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         IconButton(
-          onPressed: () => setPostGrid(true),
+          onPressed: () => setPostOrientation('grid'),
           icon: Icon(Icons.grid_on),
-          color: postIsGrid ? Theme.of(context).primaryColor : Colors.grey,
+          color: postOrientation == 'grid' ? Theme.of(context).primaryColor : Colors.grey,
         ),
         IconButton(
-          onPressed: () => setPostGrid(false),
+          onPressed: () => setPostOrientation('list'),
           icon: Icon(Icons.list),
-          color: postIsGrid ? Colors.grey : Theme.of(context).primaryColor,
+          color: postOrientation == 'list' ? Theme.of(context).primaryColor : Colors.grey,
         ),
       ],
     );
