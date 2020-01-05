@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:animator/animator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -75,6 +78,7 @@ class _PostState extends State<Post> {
   final String description;
   final String mediaUrl;
 
+  bool showHeart; // Like heart
   int likeCount;
   bool isLiked; // Used for border/filling in heart button
   Map likes;
@@ -90,28 +94,44 @@ class _PostState extends State<Post> {
     this.likes,
   });
 
+
+  // Handles everything to do with liking posts
   handleLikePost() {
+    // check if post is liked (userId in the likes map)
     bool _isLiked = likes[currentUserId] == true;
 
+    // Post already liked
     if (_isLiked) {
       postsRef.document(ownerId).collection('userPosts').document(postId).updateData({'likes.$currentUserId': false});
 
+      // decrement post likes, set to unliked and remove user from likes map
       setState(() {
         likeCount--;
         isLiked = false;
         likes[currentUserId] = false;
       });
+
+    // Post not liked
     } else if (!_isLiked) {
       postsRef.document(ownerId).collection('userPosts').document(postId).updateData({'likes.$currentUserId': true});
 
+      // increment post likes, set to liked, add user to likes map, show <3 icon
       setState(() {
         likeCount++;
         isLiked = true;
         likes[currentUserId] = true;
+        showHeart = true;
+      });
+      // Animate heart icon for half a second
+      Timer(Duration(milliseconds: 500), () {
+        setState(() {
+          showHeart = false;
+        });
       });
     }
   }
 
+  // Builds the header section of a post
   buildPostHeader() {
     return FutureBuilder(
       future: usersRef.document(ownerId).get(),
@@ -146,6 +166,7 @@ class _PostState extends State<Post> {
     );
   }
 
+  // Builds the image section of an image/photo post
   buildPostImage() {
     return GestureDetector(
       onDoubleTap: () => handleLikePost,
@@ -153,11 +174,35 @@ class _PostState extends State<Post> {
         alignment: Alignment.center,
         children: <Widget>[
           cachedNetworkImage(mediaUrl),
+          // Animate heart pule if showHeart  is true
+          showHeart ? Animator(
+            duration: Duration(milliseconds: 300),
+            tween: Tween(begin: 0.8, end: 1.4),
+            curve: Curves.elasticOut,
+            cycles: 0,
+            builder: (anim) => Transform.scale(
+              scale: anim.value,
+              child: Icon(
+                Icons.favorite,
+                size: 80.0,
+                color: Colors.red,
+              ),
+            ),
+          // Show heart is false
+          ): Text(''),
         ],
       ),
     );
   }
 
+  // Builds the text section of a text post
+  buildPostText() {
+    // TODO: Implement option for either image or text post, and call the appropriate build method
+      // Text post might need a different footer since the caption is the post itself... unless...
+      // That's to figure out later
+  }
+
+  // Builds the footer section of a post
   buildPostFooter() {
     return Column(
       children: <Widget>[
