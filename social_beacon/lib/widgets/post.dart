@@ -90,20 +90,28 @@ class _PostState extends State<Post> {
     this.likes,
   });
 
+
+  // Handles everything to do with liking posts
   handleLikePost() {
+    // check if post is liked (userId in the likes map)
     bool _isLiked = likes[currentUserId] == true;
 
+    // Post already liked
     if (_isLiked) {
       postsRef.document(ownerId).collection('userPosts').document(postId).updateData({'likes.$currentUserId': false});
 
+      // decrement post likes, set to unliked and remove user from likes map
       setState(() {
         likeCount--;
         isLiked = false;
         likes[currentUserId] = false;
       });
+
+    // Post not liked
     } else if (!_isLiked) {
       postsRef.document(ownerId).collection('userPosts').document(postId).updateData({'likes.$currentUserId': true});
 
+      // increment post likes, set to liked and add user to likes map
       setState(() {
         likeCount++;
         isLiked = true;
@@ -112,6 +120,7 @@ class _PostState extends State<Post> {
     }
   }
 
+  // Builds the header section of a post
   buildPostHeader() {
     return FutureBuilder(
       future: usersRef.document(ownerId).get(),
@@ -146,6 +155,7 @@ class _PostState extends State<Post> {
     );
   }
 
+  // Builds the image section of an image/photo post
   buildPostImage() {
     return GestureDetector(
       onDoubleTap: () => handleLikePost,
@@ -158,6 +168,14 @@ class _PostState extends State<Post> {
     );
   }
 
+  // Builds the text section of a text post
+  buildPostText() {
+    // TODO: Implement option for either image or text post, and call the appropriate build method
+      // Text post might need a different footer since the caption is the post itself... unless...
+      // That's to figure out later
+  }
+
+  // Builds the footer section of a post
   buildPostFooter() {
     return Column(
       children: <Widget>[
