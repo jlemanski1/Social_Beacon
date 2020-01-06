@@ -78,7 +78,7 @@ class _PostState extends State<Post> {
   final String description;
   final String mediaUrl;
 
-  bool showHeart; // Like heart
+  bool showHeart = false; // Like heart on doubleTap
   int likeCount;
   bool isLiked; // Used for border/filling in heart button
   Map likes;
@@ -169,7 +169,7 @@ class _PostState extends State<Post> {
   // Builds the image section of an image/photo post
   buildPostImage() {
     return GestureDetector(
-      onDoubleTap: () => handleLikePost,
+      onDoubleTap: () => handleLikePost(),
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
@@ -211,7 +211,7 @@ class _PostState extends State<Post> {
           children: <Widget>[
             Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0),),
             GestureDetector(
-              onTap: () => handleLikePost,
+              onTap: () => handleLikePost(),
               child: Icon(
                 isLiked ? Icons.favorite : Icons.favorite_border,
                 size: 28.0,
@@ -249,14 +249,14 @@ class _PostState extends State<Post> {
             Container(
               margin: EdgeInsets.only(left: 20.0),
               child: Text(
-                '$username ',
+                username ?? '',
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            Expanded(child: Text(description),),
+            Expanded(child: Text(description ?? ''),),
           ],
         ),
       ],
