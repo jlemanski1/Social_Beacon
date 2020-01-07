@@ -59,7 +59,7 @@ class _CommentsState extends State<Comments> {
   }
 
 
-  // Adds comment to Firestore collection
+  // Adds comment & comment notification to the respective Firestore collections
   addComment() {
     commentsRef.document(postId).collection('comments').add({
       'username': currentUser.username,
@@ -68,6 +68,22 @@ class _CommentsState extends State<Comments> {
       'avatarUrl': currentUser.photoUrl,
       'userId': currentUser.id,
     });
+
+    // Add comment notification to Firestore collection
+    bool notPostOwner = postOwnerId != currentUser.id;
+    if (notPostOwner) {
+      feedRef.document(postOwnerId).collection('feedItems').add({
+        'type': 'like',
+        'commentData': commentController.text,
+        'username': currentUser.username,
+        'userId': currentUser.id,
+        'userProfileImg': currentUser.photoUrl,
+        'postId': postId,
+        'mediaUrl': postMediaUrl,
+        'timestamp': DateTime.now(),  
+      });
+    }
+    // Clear text field
     commentController.clear();
   }
 
