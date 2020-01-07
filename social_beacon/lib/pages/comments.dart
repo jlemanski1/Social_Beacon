@@ -73,7 +73,7 @@ class _CommentsState extends State<Comments> {
     bool notPostOwner = postOwnerId != currentUser.id;
     if (notPostOwner) {
       feedRef.document(postOwnerId).collection('feedItems').add({
-        'type': 'like',
+        'type': 'comment',
         'commentData': commentController.text,
         'username': currentUser.username,
         'userId': currentUser.id,
