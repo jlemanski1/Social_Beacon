@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:social_beacon/models/user.dart';
+import 'package:social_beacon/pages/comments.dart';
 import 'package:social_beacon/pages/home.dart';
 import 'package:social_beacon/widgets/load_image.dart';
 import 'package:social_beacon/widgets/progress.dart';
@@ -202,6 +203,7 @@ class _PostState extends State<Post> {
       // That's to figure out later
   }
 
+
   // Builds the footer section of a post
   buildPostFooter() {
     return Column(
@@ -220,7 +222,12 @@ class _PostState extends State<Post> {
             ),
             Padding(padding: EdgeInsets.only(right: 20.0),),
             GestureDetector(
-              onTap: () => print('showing comments'),
+              onTap: () => showComments(
+                context,
+                postId: postId,
+                ownerId: ownerId,
+                mediaUrl: mediaUrl,
+              ),
               child: Icon(
                 Icons.chat,
                 size: 28.0,
@@ -261,6 +268,17 @@ class _PostState extends State<Post> {
         ),
       ],
     );
+  }
+
+
+  showComments(BuildContext context, {String postId, String ownerId, String mediaUrl}) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return Comments(
+        postId: postId,
+        postOwnerId: ownerId,
+        postMediaUrl: mediaUrl,
+      );
+    }));
   }
 
   @override
