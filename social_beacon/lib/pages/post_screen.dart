@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:social_beacon/pages/home.dart';
+import 'package:social_beacon/widgets/header.dart';
+import 'package:social_beacon/widgets/post.dart';
+import 'package:social_beacon/widgets/progress.dart';
 
 
 class PostScreen extends StatelessWidget {
@@ -13,6 +16,24 @@ class PostScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: postsRef.document(userId).collection('userPosts').document(postId).get(),
-    )
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return circularProgress();
+        }
+        Post post = Post.fromDocument(snapshot.data);
+        return Center(
+          child: Scaffold(
+            appBar: header(context, titleText: post.description ?? ''),
+            body: ListView(
+              children: <Widget>[
+                Container(
+                  child: post,
+                )
+              ],
+            ),
+          )
+        );
+      },
+    );
   }
 }
