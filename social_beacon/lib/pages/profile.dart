@@ -210,8 +210,6 @@ class _ProfileState extends State<Profile> {
 
   // Returns the users posts in state in either a column or grid view
   buildProfilePosts() {
-    print(postOrientation); // TODO: fix postOrientation and switch to bool or enum after
-
     if (isLoading) {
       return circularProgress();
     // No posts, display splash image
@@ -260,7 +258,7 @@ class _ProfileState extends State<Profile> {
   // Set the profile page to display posts in grid view
   setPostOrientation(String orientation) {
     setState(() {
-      this.postOrientation = postOrientation;
+      this.postOrientation = orientation;
     });
   }
 
