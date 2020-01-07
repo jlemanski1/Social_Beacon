@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:social_beacon/pages/activity_feed.dart';
 import 'package:social_beacon/widgets/header.dart';
 import 'package:social_beacon/widgets/progress.dart';
 import 'home.dart';
@@ -59,7 +60,7 @@ class _CommentsState extends State<Comments> {
   }
 
 
-  // Adds comment to Firestore collection
+  // Adds comment & comment notification to the respective Firestore collections
   addComment() {
     commentsRef.document(postId).collection('comments').add({
       'username': currentUser.username,
@@ -68,6 +69,22 @@ class _CommentsState extends State<Comments> {
       'avatarUrl': currentUser.photoUrl,
       'userId': currentUser.id,
     });
+
+    // Add comment notification to Firestore collection
+    bool notPostOwner = postOwnerId != currentUser.id;
+    if (notPostOwner) {
+      feedRef.document(postOwnerId).collection('feedItems').add({
+        'type': 'comment',
+        'commentData': commentController.text,
+        'username': currentUser.username,
+        'userId': currentUser.id,
+        'userProfileImg': currentUser.photoUrl,
+        'postId': postId,
+        'mediaUrl': postMediaUrl,
+        'timestamp': DateTime.now(),  
+      });
+    }
+    // Clear text field
     commentController.clear();
   }
 
@@ -89,7 +106,7 @@ class _CommentsState extends State<Comments> {
             trailing: OutlineButton(
               onPressed:  addComment,
               borderSide: BorderSide.none,
-              child: Text('post'),
+              child: Text('Post'),
             ),
           )
         ],
@@ -97,8 +114,6 @@ class _CommentsState extends State<Comments> {
     );
   }
 }
-
-
 
 
 
@@ -135,10 +150,19 @@ class Comment extends StatelessWidget {
       children: <Widget>[
         ListTile(
           title: Text(comment),
-          leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(avatarUrl),
+          leading: GestureDetector(
+            onTap: () => showProfile(context, profileId: userId),
+            child: CircleAvatar(
+              backgroundImage: CachedNetworkImageProvider(avatarUrl),
+            ),
           ),
-          subtitle: Text(timeAgo.format(timestamp.toDate())),
+          subtitle: Text(username),
+          trailing: Text(
+            timeAgo.format(timestamp.toDate()),
+            style: TextStyle(
+              fontSize: 12
+            ),
+          ),
         ),
         Divider(),
       ],

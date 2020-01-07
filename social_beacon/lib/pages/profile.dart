@@ -127,6 +127,8 @@ class _ProfileState extends State<Profile> {
         text: 'Edit Profile',
         onPressed: editProfile,
       );
+    } else {
+      return Text('');
     }
   }
 
