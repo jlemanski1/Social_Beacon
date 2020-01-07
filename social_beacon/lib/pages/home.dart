@@ -17,6 +17,7 @@ import 'package:social_beacon/pages/search.dart';
 final postsRef = Firestore.instance.collection('posts');
 final usersRef = Firestore.instance.collection('users');
 final commentsRef = Firestore.instance.collection('comments');
+final feedRef = Firestore.instance.collection('feed');
 
 // Firebase Storage ref
 final StorageReference storageRef = FirebaseStorage.instance.ref();

@@ -105,6 +105,8 @@ class _PostState extends State<Post> {
     if (_isLiked) {
       postsRef.document(ownerId).collection('userPosts').document(postId).updateData({'likes.$currentUserId': false});
 
+      removeLikeFromFeed();
+
       // decrement post likes, set to unliked and remove user from likes map
       setState(() {
         likeCount--;
@@ -115,6 +117,8 @@ class _PostState extends State<Post> {
     // Post not liked
     } else if (!_isLiked) {
       postsRef.document(ownerId).collection('userPosts').document(postId).updateData({'likes.$currentUserId': true});
+
+      addLikeToFeed();  // Add to the activity feed
 
       // increment post likes, set to liked, add user to likes map, show <3 icon
       setState(() {
@@ -131,6 +135,42 @@ class _PostState extends State<Post> {
       });
     }
   }
+
+
+  // Add a like notification to the postOwner's activity feed if liked by another user
+  // Don't need to notify someone of their own actions.
+  addLikeToFeed() {
+    bool notPostOwner =  currentUserId != ownerId;
+    if (notPostOwner) {
+      // Create notification in Firestore collection
+      feedRef.document(ownerId).collection('feedItems').document(postId).setData({
+        'type': 'like',
+        'username': currentUser.username,
+        'userId': currentUser.id,
+        'userProfileImg': currentUser.photoUrl,
+        'postId': postId,
+        'mediaUrl': mediaUrl,
+        'timestamp': DateTime.now(),
+      });
+
+    }
+
+  }
+
+
+  // Removes like notification from postOwner's activity feed if liked by another user
+  removeLikeFromFeed() {
+    bool notPostOwner =  currentUserId != ownerId;
+    if (notPostOwner) {
+      // Delete notification doc from Firestore collection
+      feedRef.document(ownerId).collection('feedItems').document(postId).get().then((doc) {
+        if (doc.exists){
+          doc.reference.delete();
+        }
+      });
+    }
+  }
+
 
   // Builds the header section of a post
   buildPostHeader() {
@@ -175,7 +215,7 @@ class _PostState extends State<Post> {
         alignment: Alignment.center,
         children: <Widget>[
           cachedNetworkImage(mediaUrl),
-          // Animate heart pule if showHeart  is true
+          // Animate heart pulse if showHeart  is true
           showHeart ? Animator(
             duration: Duration(milliseconds: 300),
             tween: Tween(begin: 0.8, end: 1.4),
