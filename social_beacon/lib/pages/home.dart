@@ -50,13 +50,15 @@ class _HomeState extends State<Home> {
         print('Error Signin In: $err');
     });
 
+    /*
+    TODO: Fix null error on silent sign in  (seemingly random, will take investigating)
     // ReAuth user when app is opened
     googleSignIn.signInSilently(suppressErrors: false).then((account) {
       handleSignIn(account);
     }).catchError((err) {
       print('Error Signin In: $err');
     });
-    
+    */
   }
 
 
