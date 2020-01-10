@@ -150,19 +150,18 @@ class Comment extends StatelessWidget {
       children: <Widget>[
         ListTile(
           title: Text(comment),
-          leading: GestureDetector(
-            onTap: () => showProfile(context, profileId: userId),
-            child: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(avatarUrl),
-            ),
+          leading: Column(
+            children: <Widget>[
+              GestureDetector(
+                onTap: () => showProfile(context, profileId: userId),
+                child: CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(avatarUrl),
+                ),
+              ),
+              Text(username),
+            ],
           ),
-          subtitle: Text(username),
-          trailing: Text(
-            timeAgo.format(timestamp.toDate()),
-            style: TextStyle(
-              fontSize: 12
-            ),
-          ),
+          subtitle: Text(timeAgo.format(timestamp.toDate())),
         ),
         Divider(),
       ],
