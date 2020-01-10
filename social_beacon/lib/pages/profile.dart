@@ -27,6 +27,8 @@ class _ProfileState extends State<Profile> {
   bool isFollowing = false;
   String postOrientation = 'grid';
   int postCount = 0;
+  int followerCount = 0;
+  int followingCount = 0;
   List<Post> posts = [];
 
   @override
@@ -34,6 +36,9 @@ class _ProfileState extends State<Profile> {
     super.initState();
 
     getProfilePosts();
+    getFollowers();
+    getFollowing();
+    checkIfFollowing();
   }
 
 
@@ -55,6 +60,31 @@ class _ProfileState extends State<Profile> {
     });
   }
 
+  // Gets the follower count of a user to be displayed on their profile header
+  getFollowers() async {
+    QuerySnapshot snapshot = await followersRef.document(widget.profileId).collection('userFollowers').getDocuments();
+    setState(() {
+      followerCount = snapshot.documents.length;
+    });
+  }
+
+  // Gets the following count of a user to be displayed on their profile header
+  getFollowing() async {
+    QuerySnapshot snapshot = await followingRef.document(widget.profileId).collection('userFollowing').getDocuments();
+    setState(() {
+      followingCount = snapshot.documents.length;
+    });
+  }
+
+
+  // Checks if current user exists as a follower of the profile owner
+  checkIfFollowing() async {
+    DocumentSnapshot doc = await followersRef.document(widget.profileId).collection('userFollowers').document(currentUserId).get();
+    // isFollowing is true when the doc exists
+    setState(() {
+      isFollowing = doc.exists;
+    });
+  }
 
   // Builds the column and adds count for posts, followers, following
   Column buildCountColumn(String label, int count) {
@@ -90,14 +120,56 @@ class _ProfileState extends State<Profile> {
   }
 
 
-
+  /*
+    Handles all database operations related to unfollowing a fellow user
+  */
   handleUnfollowUser() {
-
+    setState(() {
+      // Changes button from follow to unfollow
+      isFollowing = false;
+    });
+    // Remove follower of other user, delete doc from collection if it exists
+    followersRef.document(widget.profileId).collection('userFollowers').document(currentUserId).get().then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // remove following
+    followingRef.document(currentUserId).collection('userFollowing').document(widget.profileId).get().then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // Remove activity feed item for follow
+    feedRef.document(widget.profileId).collection('feedItems').document(currentUserId).get().then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
   }
 
 
+  /*
+    Handles all database operations related to following a fellow user
+  */
   handleFollowUser() {
-
+    setState(() {
+      // Changes button from unfollow to follow
+      isFollowing = true;
+    });
+    // Make authed user follower of other user, update That  followers collection
+    followersRef.document(widget.profileId).collection('userFollowers').document(currentUserId).setData({});
+    // Put That user on the authed user's followering collection
+    followingRef.document(currentUserId).collection('userFollowing').document(widget.profileId).setData({});
+    // Add activity feed item for follow
+    feedRef.document(widget.profileId).collection('feedItems').document(currentUserId).setData({
+      'type': 'follow',
+      'ownerId': widget.profileId,
+      'username': currentUser.username,
+      'userId': currentUserId,
+      'userProfileImg': currentUser.photoUrl,
+      'timestamp': timestamp,
+    });
   }
 
 
@@ -184,8 +256,8 @@ class _ProfileState extends State<Profile> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             buildCountColumn('posts', postCount ?? 0),
-                            buildCountColumn('followers', 0),
-                            buildCountColumn('following', 0),
+                            buildCountColumn('followers', followerCount ?? 0),
+                            buildCountColumn('following', followingCount ?? 0),
                           ],
                         ),
                         Row(

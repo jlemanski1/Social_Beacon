@@ -18,6 +18,8 @@ final postsRef = Firestore.instance.collection('posts');
 final usersRef = Firestore.instance.collection('users');
 final commentsRef = Firestore.instance.collection('comments');
 final feedRef = Firestore.instance.collection('feed');
+final followersRef = Firestore.instance.collection('followers');
+final followingRef = Firestore.instance.collection('following');
 
 // Firebase Storage ref
 final StorageReference storageRef = FirebaseStorage.instance.ref();
@@ -52,6 +54,7 @@ class _HomeState extends State<Home> {
 
     /*
     TODO: Fix null error on silent sign in  (seemingly random, will take investigating)
+
     // ReAuth user when app is opened
     googleSignIn.signInSilently(suppressErrors: false).then((account) {
       handleSignIn(account);
