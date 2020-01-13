@@ -43,7 +43,7 @@ class _ProfileState extends State<Profile> {
 
 
   // Fetches the users posts from cloud Firestore
-  getProfilePosts() async {
+  void getProfilePosts() async {
     // Start loading
     setState(() {
       isLoading = true;
@@ -61,7 +61,7 @@ class _ProfileState extends State<Profile> {
   }
 
   // Gets the follower count of a user to be displayed on their profile header
-  getFollowers() async {
+  void getFollowers() async {
     QuerySnapshot snapshot = await followersRef.document(widget.profileId).collection('userFollowers').getDocuments();
     setState(() {
       followerCount = snapshot.documents.length;
@@ -69,7 +69,7 @@ class _ProfileState extends State<Profile> {
   }
 
   // Gets the following count of a user to be displayed on their profile header
-  getFollowing() async {
+  void getFollowing() async {
     QuerySnapshot snapshot = await followingRef.document(widget.profileId).collection('userFollowing').getDocuments();
     setState(() {
       followingCount = snapshot.documents.length;
@@ -78,7 +78,7 @@ class _ProfileState extends State<Profile> {
 
 
   // Checks if current user exists as a follower of the profile owner
-  checkIfFollowing() async {
+  void checkIfFollowing() async {
     DocumentSnapshot doc = await followersRef.document(widget.profileId).collection('userFollowers').document(currentUserId).get();
     // isFollowing is true when the doc exists
     setState(() {
@@ -115,7 +115,7 @@ class _ProfileState extends State<Profile> {
   }
 
   // Pushes to edit Profile page
-  editProfile() {
+  void editProfile() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(currentUserId: currentUserId)));
   }
 
@@ -123,7 +123,7 @@ class _ProfileState extends State<Profile> {
   /*
     Handles all database operations related to unfollowing a fellow user
   */
-  handleUnfollowUser() {
+  void handleUnfollowUser() {
     setState(() {
       // Changes button from follow to unfollow
       isFollowing = false;
@@ -152,7 +152,7 @@ class _ProfileState extends State<Profile> {
   /*
     Handles all database operations related to following a fellow user
   */
-  handleFollowUser() {
+  void handleFollowUser() {
     setState(() {
       // Changes button from unfollow to follow
       isFollowing = true;
@@ -174,7 +174,7 @@ class _ProfileState extends State<Profile> {
 
 
   // Builds button allowing user to edit profile
-  buildButton({String text, Function onPressed}) {
+  Container buildButton({String text, Function onPressed}) {
     return Container(
       padding: EdgeInsets.only(top: 2.0),
       child: FlatButton(
@@ -206,7 +206,7 @@ class _ProfileState extends State<Profile> {
     Builds the appropriate profile button based on context. Your profile shows edit,
     Fellow user profiles will show either follow or unfollow, depending on follow status
   */
-  buildProfileButton() {
+  dynamic buildProfileButton() {
     bool isProfileOwner = currentUserId == widget.profileId;
     if (isProfileOwner) {
       return buildButton(
@@ -352,14 +352,14 @@ class _ProfileState extends State<Profile> {
   }
 
   // Set the profile page to display posts in grid view
-  setPostOrientation(String orientation) {
+  void setPostOrientation(String orientation) {
     setState(() {
       this.postOrientation = orientation;
     });
   }
 
   // Builds row of buttons for toggling between post orientations
-  buildTogglePostOrientation() {
+  Row buildTogglePostOrientation() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
