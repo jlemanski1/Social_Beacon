@@ -89,7 +89,7 @@ class _TimelineState extends State<Timeline> {
                       ),
                       SizedBox(width: 8.0,),
                       Text(
-                        'School Feeds to Follow:',
+                        'Schools to Follow:',
                         style: TextStyle(
                           color: Theme.of(context).primaryColor,
                           fontSize: 30.0,

@@ -53,8 +53,6 @@ class _HomeState extends State<Home> {
         print('Error Signin In: $err');
     });
 
-    /*
-    TODO: Fix null error on silent sign in  (seemingly random, will take investigating)
 
     // ReAuth user when app is opened
     googleSignIn.signInSilently(suppressErrors: false).then((account) {
@@ -62,14 +60,14 @@ class _HomeState extends State<Home> {
     }).catchError((err) {
       print('Error Signin In: $err');
     });
-    */
+    
   }
 
 
   // Determines if user is signed in
-  handleSignIn(GoogleSignInAccount account) {
+  void handleSignIn(GoogleSignInAccount account) async {
     if (account != null) {
-      createFirestoreUser();
+      await createFirestoreUser();
       setState(() {
         isAuth = true;
       });
@@ -132,14 +130,14 @@ class _HomeState extends State<Home> {
   }
 
   // Set page index in state and rebuild
-  onPageChanged(int pageIndex) {
+  void onPageChanged(int pageIndex) {
     setState(() {
       this.pageIndex = pageIndex;
     });
   }
 
   // Animate to the passed in page
-  onTap(int pageIndex) {
+  void onTap(int pageIndex) {
     pageController.animateToPage(
       pageIndex,
       duration: Duration(milliseconds: 200),
