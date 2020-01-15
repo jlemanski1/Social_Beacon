@@ -20,6 +20,7 @@ final commentsRef = Firestore.instance.collection('comments');
 final feedRef = Firestore.instance.collection('feed');
 final followersRef = Firestore.instance.collection('followers');
 final followingRef = Firestore.instance.collection('following');
+final timelineRef = Firestore.instance.collection('timeline');
 
 // Firebase Storage ref
 final StorageReference storageRef = FirebaseStorage.instance.ref();
@@ -52,8 +53,6 @@ class _HomeState extends State<Home> {
         print('Error Signin In: $err');
     });
 
-    /*
-    TODO: Fix null error on silent sign in  (seemingly random, will take investigating)
 
     // ReAuth user when app is opened
     googleSignIn.signInSilently(suppressErrors: false).then((account) {
@@ -61,14 +60,14 @@ class _HomeState extends State<Home> {
     }).catchError((err) {
       print('Error Signin In: $err');
     });
-    */
+    
   }
 
 
   // Determines if user is signed in
-  handleSignIn(GoogleSignInAccount account) {
+  void handleSignIn(GoogleSignInAccount account) async {
     if (account != null) {
-      createFirestoreUser();
+      await createFirestoreUser();
       setState(() {
         isAuth = true;
       });
@@ -100,6 +99,8 @@ class _HomeState extends State<Home> {
         'timestamp': timestamp,
 
       });
+      // Make new user their own follower (to include posts in their timeline)
+      await followersRef.document(user.id).collection('userFollowers').document(user.id).setData({});
       doc = await usersRef.document(user.id).get(); // Update doc
     }
 
@@ -129,14 +130,14 @@ class _HomeState extends State<Home> {
   }
 
   // Set page index in state and rebuild
-  onPageChanged(int pageIndex) {
+  void onPageChanged(int pageIndex) {
     setState(() {
       this.pageIndex = pageIndex;
     });
   }
 
   // Animate to the passed in page
-  onTap(int pageIndex) {
+  void onTap(int pageIndex) {
     pageController.animateToPage(
       pageIndex,
       duration: Duration(milliseconds: 200),
@@ -149,12 +150,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: PageView(
         children: <Widget>[
-          //Timeline(),
-          RaisedButton(
-            color: Colors.white,
-            child: Text('Logout'),
-            onPressed: logout,
-          ),
+          Timeline(currentUser: currentUser),
           ActivityFeed(),
           Upload(
             currentUser: currentUser,

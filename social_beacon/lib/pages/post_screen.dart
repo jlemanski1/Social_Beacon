@@ -12,6 +12,9 @@ class PostScreen extends StatelessWidget {
   PostScreen({this.postId, this.userId});
 
 
+  // TODO: Add 2-3 most recent comments underneath the post screen like how insta does,
+  //       maybe do that on post and not post screen so its viewable everywhere
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
