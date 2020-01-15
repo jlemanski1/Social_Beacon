@@ -18,9 +18,7 @@ class _SearchState extends State<Search> {
 
   // Takes input from the appbar search formfield and processes it
   handleSearch(String query) {
-    Future<QuerySnapshot> users = usersRef
-    .where('displayName', isGreaterThanOrEqualTo: query)
-    .getDocuments();
+    Future<QuerySnapshot> users = usersRef.where('displayName', isGreaterThanOrEqualTo: query).getDocuments();
 
     setState(() {
       searchResults = users;
@@ -43,7 +41,10 @@ class _SearchState extends State<Search> {
         decoration: InputDecoration(
           hintText: 'Search for a user...',
           filled: true,
-          prefixIcon: Icon(Icons.account_box, size: 28.0,),
+          prefixIcon: Icon(
+            Icons.account_box,
+            size: 28.0,
+          ),
           suffixIcon: IconButton(
             icon: Icon(Icons.clear),
             onPressed: clearSearch,
@@ -76,7 +77,6 @@ class _SearchState extends State<Search> {
                 fontStyle: FontStyle.italic,
                 fontWeight: FontWeight.w600,
                 fontSize: 60.0,
-              
               ),
             ),
           ],
@@ -88,23 +88,22 @@ class _SearchState extends State<Search> {
 
 
   // Display User docs that are retrieved from cloud firestore
-  FutureBuilder buildSearchResults() {
+  buildSearchResults() {
     return FutureBuilder(
       future: searchResults,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
-        } else {
-          List<UserResult> searchResultsList = [];
-          snapshot.data.documents.foreach((doc) {
-            User user = User.fromDocument(doc);
-            UserResult searchResult = UserResult(user);
-            searchResultsList.add(searchResult);
-          });
-          return ListView(
-            children: searchResultsList,
-          );
         }
+        List<UserResult> searchResultsList = [];
+        snapshot.data.documents.forEach((doc) {
+          User user = User.fromDocument(doc);
+          UserResult searchResult = UserResult(user);
+          searchResultsList.add(searchResult);
+        });
+        return ListView(
+          children: searchResultsList,
+        );
       }
     );
   }
