@@ -101,6 +101,8 @@ class _HomeState extends State<Home> {
         'timestamp': timestamp,
 
       });
+      // Make new user their own follower (to include posts in their timeline)
+      await followersRef.document(user.id).collection('userFollowers').document(user.id).setData({});
       doc = await usersRef.document(user.id).get(); // Update doc
     }
 
