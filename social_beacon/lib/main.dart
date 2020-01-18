@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Social Beacon',
       debugShowCheckedModeBanner: false,  // Hide Banner in debug mode
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
