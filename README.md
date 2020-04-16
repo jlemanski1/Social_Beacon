@@ -84,78 +84,12 @@ flutter pub get
 
 ## Installation
 
-
-
-```
-
-
-```
-
-<!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/jlemanski1/Social_Beacon/issues) for a list of proposed features (and known issues).
-
-
-  <p align="center">
-    A semi-anonymous social networking for university students.
-    <br />
-    <a href="https://github.com/jlemanski1/Social_Beacon"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/jlemanski1/Social_Beacon">View Demo</a>
-    ·
-    <a href="https://github.com/jlemanski1/Social_Beacon/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/jlemanski1/Social_Beacon/issues">Request Feature</a>
-  </p>
-</p>
-
-
-
-<!-- TABLE OF CONTENTS -->
-## Table of Contents
-
-* [About the Project](#about-the-project)
-  * [Built With](#built-with)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-* [Roadmap](#roadmap)
-
-<!-- ABOUT THE PROJECT -->
-## About The Project
-Short description
-
-### Built With
-
-* [Dart](https://dart.dev/)
-* [Flutter](https://flutter.dev/)
-
-<!-- GETTING STARTED -->
-## Prerequisites
-Install before downloading and running project.
-* [**Dart**](https://dart.dev/get-dart)
-
-* [**Flutter**](https://flutter.dev/docs/get-started/install)
-
-*  [**Android Studio**](https://developer.android.com/studio/install)
-
-## Getting Started
-
-1. Clone the repo
-```sh
-git clone https://github.com/jlemanski1/Social_Beacon.git
-```
-2. Install Flutter/Dart packages
 ```sh
 cd app_dir
-flutter pub get
+flutter install
 ```
-
-
 
 <!-- ROADMAP -->
 ## Roadmap
 
 See the [open issues](https://github.com/jlemanski1/Social_Beacon/issues) for a list of proposed features (and known issues).
-
